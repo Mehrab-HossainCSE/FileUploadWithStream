@@ -1,5 +1,8 @@
-﻿using FileUpload.Entities;
+﻿using FileUpload.Commands;
+using FileUpload.Entities;
+using FileUpload.Queries;
 using FileUpload.Services;
+using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -13,11 +16,11 @@ namespace FileUpload.Controllers
     [ApiController]
     public class FilesController : ControllerBase
     {
-        private readonly IFileService _uploadService;
+        private readonly IMediator _mediator;
 
-        public FilesController(IFileService uploadService)
+        public FilesController(IMediator mediator)
         {
-            _uploadService = uploadService;
+            _mediator = mediator;
         }
 
         [HttpPost("PostSingleFile")]
@@ -30,7 +33,8 @@ namespace FileUpload.Controllers
 
             try
             {
-                await _uploadService.PostFileAsync(fileDetails.FileDetails, fileDetails.FileType);
+                var command = new AddFileUserCommand(fileDetails);
+                await _mediator.Send(command);
                 return Ok();
             }
             catch (Exception ex)
@@ -39,26 +43,9 @@ namespace FileUpload.Controllers
             }
         }
 
-        [HttpPost("PostMultipleFile")]
-        public async Task<ActionResult> PostMultipleFile([FromForm] List<FileUploadModel> fileDetails)
-        {
-            if (fileDetails == null)
-            {
-                return BadRequest("File details cannot be null.");
-            }
 
-            try
-            {
-                await _uploadService.PostMultiFileAsync(fileDetails);
-                return Ok();
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"Internal server error: {ex.Message}");
-            }
-        }
 
-        [HttpGet("DownloadFile")]
+        [HttpGet("DownloadFileById")]
         public async Task<ActionResult> DownloadFile(int id)
         {
             if (id < 1)
@@ -68,7 +55,8 @@ namespace FileUpload.Controllers
 
             try
             {
-                var file = await _uploadService.GetFileByIdAsync(id);
+                var query = new GetUserFileQuery(id);
+                var file = await _mediator.Send(query);
                 return File(new MemoryStream(file.FileData), "application/octet-stream", file.FileName);
             }
             catch (FileNotFoundException)
