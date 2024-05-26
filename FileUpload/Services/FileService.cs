@@ -17,20 +17,20 @@ namespace FileUpload.Services
             this.dbContextClass = dbContextClass;
         }
 
-        public async Task PostFileAsync(IFormFile fileData, FileType fileType)
+        public async Task PostFileAsync(FileUploadModel fileData)
         {
             try
             {
                 var fileDetails = new FileDetails()
                 {
                     ID = 0,
-                    FileName = fileData.FileName,
-                    FileType = fileType,
+                    FileName = fileData.FileDetails.FileName,
+                    FileType = fileData. FileType,
                 };
 
                 using (var stream = new MemoryStream())
                 {
-                    await fileData.CopyToAsync(stream);
+                    await fileData.FileDetails.CopyToAsync(stream);
                     fileDetails.FileData = stream.ToArray();
                 }
 
@@ -43,35 +43,7 @@ namespace FileUpload.Services
             }
         }
 
-        public async Task PostMultiFileAsync(List<FileUploadModel> fileData)
-        {
-            try
-            {
-                foreach (var file in fileData)
-                {
-                    var fileDetails = new FileDetails()
-                    {
-                        ID = 0,
-                        FileName = file.FileDetails.FileName,
-                        FileType = file.FileType,
-                    };
-
-                    using (var stream = new MemoryStream())
-                    {
-                        await file.FileDetails.CopyToAsync(stream);
-                        fileDetails.FileData = stream.ToArray();
-                    }
-
-                    dbContextClass.FileDetails.Add(fileDetails);
-                }
-                await dbContextClass.SaveChangesAsync();
-            }
-            catch (Exception ex)
-            {
-                throw new Exception("Error while uploading multiple files", ex);
-            }
-        }
-
+        
         public async Task<FileDetails> GetFileByIdAsync(int id)
         {
             try

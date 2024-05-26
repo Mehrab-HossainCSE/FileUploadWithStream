@@ -4,9 +4,9 @@ namespace FileUpload.Services
 {
     public interface IFileService
     {
-        public Task PostFileAsync(IFormFile fileData, FileType fileType);
+        public Task PostFileAsync(FileUploadModel fileUploadModel);
 
-        public Task PostMultiFileAsync(List<FileUploadModel> fileData);
+       
 
         public Task<FileDetails> GetFileByIdAsync(int fileName);
     }

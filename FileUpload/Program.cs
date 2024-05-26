@@ -1,7 +1,9 @@
 using FileUpload.Data;
 using FileUpload.Services;
+using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace FileUpload
 {
@@ -10,12 +12,12 @@ namespace FileUpload
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
-
+     
             // Load configuration
             var configuration = builder.Configuration;
-
+            builder.Services.AddMediatR(cf => cf.RegisterServicesFromAssembly(typeof(Program).Assembly));
             // Add services to the container.
-
+            builder.Services.AddMediatR(cf => cf.RegisterServicesFromAssembly(typeof(Program).Assembly));
             builder.Services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
